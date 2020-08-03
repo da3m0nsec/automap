@@ -1,2 +1,4 @@
-# automap
-An automation tool for nmap scans
+# Automap
+An automation tool for nmap scans.
+
+Usage: automap HOST
