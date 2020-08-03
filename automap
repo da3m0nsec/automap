@@ -1,0 +1,52 @@
+#!/bin/bash
+
+usage () {
+    
+    echo -e "Usage: $0 HOST"
+}
+
+main () {
+
+    host=$1
+
+    echo -e "Scanning host $host\n"
+
+    ping -c 1 $host -w 3 >/dev/null 
+
+    if [ $? -ne 0 ]; then
+        echo "$host not responding. Check connectivity."
+
+        exit 0
+    fi
+
+    nmap -T5 -n -p- --open $host -oG openPorts >/dev/null
+
+    openPorts=$(cat openPorts | grep -oE '[0-9]*/open' | tr -s '/open' ',' | tr -d '\n')>/dev/null
+
+    if [ -z $openPorts ]; then
+        echo "$host has no open ports."
+
+        exit 0
+    fi
+
+    echo -e "Open ports are: ${openPorts::-1}\n"
+
+    nmap -n -sVC -p $openPorts $host -oN sVC >/dev/null
+
+    cat sVC | tail -n +5 | head -n -3
+}
+
+#############################################
+
+if [ "$1" = "" ]; then
+    usage
+
+    exit 1
+fi
+
+main $1 
+
+
+
+
+
